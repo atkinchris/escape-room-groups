@@ -42,12 +42,16 @@ while (groups === undefined && iteration < iterationLimit) {
     iteration += 1
     groups = buildGroups()
   } catch (err) {
-    console.log(err.message)
+    // console.log(err.message)
   }
 }
 
 if (!groups) {
   console.log('Could not generate groups')
 } else {
-  console.log(groups)
+  groups.forEach(group => {
+    console.log(group.name)
+    group.members.forEach(member => console.log(`* ${member}`))
+    console.log()
+  })
 }
