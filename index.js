@@ -2,6 +2,8 @@ const { knuthShuffle } = require('knuth-shuffle')
 
 const peopleRaw = require('./people.json')
 
+const MAX_IN_GROUP = 5
+
 const people = peopleRaw
   .filter(person => person.Reserve !== 'Yes')
   .map(person => ({
@@ -15,22 +17,31 @@ const groupNames = Object.keys(people[0]).filter(key => !personMetaKeys.includes
 const buildGroups = () => {
   const groups = groupNames.map(name => ({ name, members: [] }))
   knuthShuffle(people)
-  knuthShuffle(groups)
 
   people.forEach(person => {
-    const groupsAreFull = groups.every(group => group.members.length >= 5)
+    const groupsAreFull = groups.every(group => group.members.length >= MAX_IN_GROUP)
 
     if (groupsAreFull) {
       throw Error(`Could not sort ${person.Name} - groups are full`)
     }
 
+    knuthShuffle(groups)
     const wasSortedIntoGroup = groups.some(group => {
-      if (person[group.name].startsWith('Yes') && group.members.length < 5) {
-        group.members.push(person.Name)
-        return true
+      if (person[group.name].startsWith('No') || group.members.length >= MAX_IN_GROUP) {
+        return false
       }
 
-      return false
+      const hasClashes = group.members.some(member => {
+        const memberExclusions = people.find(p => p.Name === member).Exclusions
+        return memberExclusions.includes(person.Name) || person.Exclusions.includes(member)
+      })
+
+      if (hasClashes) {
+        return false
+      }
+
+      group.members.push(person.Name)
+      return true
     })
 
     if (!wasSortedIntoGroup) {
@@ -43,14 +54,14 @@ const buildGroups = () => {
 
 let groups
 let iteration = 0
-const iterationLimit = 10
+const iterationLimit = 1
 
 while (groups === undefined && iteration < iterationLimit) {
   try {
     iteration += 1
     groups = buildGroups()
   } catch (err) {
-    // console.log(err.message)
+    console.log(err.message)
   }
 }
 
