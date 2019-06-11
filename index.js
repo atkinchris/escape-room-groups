@@ -54,14 +54,14 @@ const buildGroups = () => {
 
 let groups
 let iteration = 0
-const iterationLimit = 1
+const iterationLimit = 1000
 
 while (groups === undefined && iteration < iterationLimit) {
   try {
     iteration += 1
     groups = buildGroups()
   } catch (err) {
-    console.log(err.message)
+    // console.log(err.message)
   }
 }
 
