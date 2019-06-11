@@ -16,12 +16,13 @@ const peopleRaw = excelToJson({
 
 const people = peopleRaw
   .filter(person => person.Reserve !== 'Yes')
+  .filter(person => person.Attending === 'Yes')
   .map(person => ({
     ...person,
     Exclusions: person.Exclusions ? person.Exclusions.split(',').map(e => e.trim()) : [],
   }))
 
-const personMetaKeys = ['Name', 'Reserve', 'Exclusions']
+const personMetaKeys = ['Name', 'Reserve', 'Exclusions', 'Attending']
 const groupNames = Object.keys(people[0]).filter(key => !personMetaKeys.includes(key))
 
 const buildGroups = () => {
@@ -78,9 +79,11 @@ while (groups === undefined && iteration < iterationLimit) {
 if (!groups) {
   console.log('Could not generate groups')
 } else {
-  groups.forEach(group => {
-    console.log(group.name)
-    group.members.forEach(member => console.log(`* ${member}`))
-    console.log()
-  })
+  groups
+    .sort((a, b) => a.name > b.name)
+    .forEach(group => {
+      console.log(group.name)
+      group.members.forEach(member => console.log(`* ${member}`))
+      console.log()
+    })
 }
