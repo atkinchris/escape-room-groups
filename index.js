@@ -1,8 +1,16 @@
 const { knuthShuffle } = require('knuth-shuffle')
 
-const people = require('./people.json')
+const peopleRaw = require('./people.json')
 
-const groupNames = Object.keys(people[0]).filter(key => key !== 'Name')
+const people = peopleRaw
+  .filter(person => person.Reserve !== 'Yes')
+  .map(person => ({
+    ...person,
+    Exclusions: person.Exclusions ? person.Exclusions.split(',') : [],
+  }))
+
+const personMetaKeys = ['Name', 'Reserve', 'Exclusions']
+const groupNames = Object.keys(people[0]).filter(key => !personMetaKeys.includes(key))
 
 const buildGroups = () => {
   const groups = groupNames.map(name => ({ name, members: [] }))
