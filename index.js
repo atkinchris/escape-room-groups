@@ -1,14 +1,24 @@
 const { knuthShuffle } = require('knuth-shuffle')
-
-const peopleRaw = require('./people.json')
+const excelToJson = require('convert-excel-to-json')
 
 const MAX_IN_GROUP = 5
+const WORKBOOK_NAME = 'Away Day.xlsx'
+const SHEET_NAME = 'Escape Room Prefs'
+
+const peopleRaw = excelToJson({
+  sourceFile: WORKBOOK_NAME,
+  header: { rows: 1 },
+  sheets: [SHEET_NAME],
+  columnToKey: {
+    '*': '{{columnHeader}}',
+  },
+})[SHEET_NAME]
 
 const people = peopleRaw
   .filter(person => person.Reserve !== 'Yes')
   .map(person => ({
     ...person,
-    Exclusions: person.Exclusions ? person.Exclusions.split(',') : [],
+    Exclusions: person.Exclusions ? person.Exclusions.split(',').map(e => e.trim()) : [],
   }))
 
 const personMetaKeys = ['Name', 'Reserve', 'Exclusions']

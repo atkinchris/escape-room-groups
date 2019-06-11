@@ -17,6 +17,7 @@
     "prettier": "^1.18.2"
   },
   "dependencies": {
+    "convert-excel-to-json": "^1.6.1",
     "knuth-shuffle": "^1.0.8"
   }
 }
