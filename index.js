@@ -3,11 +3,11 @@ const excelToJson = require('convert-excel-to-json')
 
 const MAX_IN_GROUP = 5
 const WORKBOOK_NAME = 'Away Day.xlsx'
-const SHEET_NAME = 'Escape Room Prefs'
+const SHEET_NAME = 'People'
 
 const peopleRaw = excelToJson({
   sourceFile: WORKBOOK_NAME,
-  header: { rows: 1 },
+  header: { rows: 4 },
   sheets: [SHEET_NAME],
   columnToKey: {
     '*': '{{columnHeader}}',
@@ -15,15 +15,22 @@ const peopleRaw = excelToJson({
 })[SHEET_NAME]
 
 const people = peopleRaw
-  .filter(person => person.Reserve !== 'Yes')
-  .filter(person => person.Attending === 'Yes')
+  .filter(person => person['Coming to breakout?'] === 'Yes')
   .map(person => ({
     ...person,
     Exclusions: person.Exclusions ? person.Exclusions.split(',').map(e => e.trim()) : [],
   }))
 
-const personMetaKeys = ['Name', 'Reserve', 'Exclusions', 'Attending']
-const groupNames = Object.keys(people[0]).filter(key => !personMetaKeys.includes(key))
+const groupNames = [
+  'Facility X',
+  'Identify',
+  'Most Wanted',
+  'Enchanted',
+  'Reclassified Blue',
+  'Reclassified Green',
+  'Vacancy',
+  'Captured',
+]
 
 const buildGroups = () => {
   const groups = groupNames.map(name => ({ name, members: [] }))
@@ -38,7 +45,7 @@ const buildGroups = () => {
 
     knuthShuffle(groups).sort((a, b) => a.members.length > b.members.length)
     const wasSortedIntoGroup = groups.some(group => {
-      if (person[group.name].startsWith('No') || group.members.length >= MAX_IN_GROUP) {
+      if (String(person[group.name] || '').startsWith('No') || group.members.length >= MAX_IN_GROUP) {
         return false
       }
 
