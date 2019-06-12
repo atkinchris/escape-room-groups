@@ -36,7 +36,7 @@ const buildGroups = () => {
       throw Error(`Could not sort ${person.Name} - groups are full`)
     }
 
-    knuthShuffle(groups)
+    knuthShuffle(groups).sort((a, b) => a.members.length > b.members.length)
     const wasSortedIntoGroup = groups.some(group => {
       if (person[group.name].startsWith('No') || group.members.length >= MAX_IN_GROUP) {
         return false
